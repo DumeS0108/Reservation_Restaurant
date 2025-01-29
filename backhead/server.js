@@ -1,109 +1,69 @@
 const express = require('express');
-const mysql = require('mysql');
-const bodyParser = require('body-parser');
+const mysql = require('mysql2/promise');
 const cors = require('cors');
-const app = express();
-const port = 3284;
 
-// Middleware
-app.use(bodyParser.json());
+const app = express();
+const PORT = 3000;
+const HOST = '192.168.65.219'; 
+
 app.use(cors());
 app.use(express.json());
 
-// Connexion à la base de données MySQL
-const bddConnection = mysql.createConnection({
-    host: '192.168.65.219',
-    user: 'site1', // Votre utilisateur MySQL
-    password: 'Site1234!', // Votre mot de passe MySQL
-    database: 'Restaurant', // Nom de votre base de données
+const bddConnection = mysql.createPool({
+    host: '192.168.65.219', 
+    user: 'site1',
+    password: 'Site1234!',
+    database: 'Restaurant',
 });
 
-bddConnection.connect((err) => {
-    if (err) throw err;
-    console.log("Connecté à la base de données !");
+// 📌 Route pour récupérer les tables disponibles
+app.get('/tables-disponibles/:plageHoraireId', async (req, res) => {
+    const plageHoraireId = req.params.plageHoraireId;
+
+    try {
+        console.log(`🔍 Recherche des tables disponibles pour PlageHoraireId = ${plageHoraireId}`);
+
+        const [rows] = await bddConnection.execute(
+            "SELECT * FROM `table` WHERE id NOT IN (SELECT tableId FROM Reservation WHERE PlageHoraireId = ?)",
+            [plageHoraireId]
+        );
+
+        console.log("✅ Tables disponibles :", rows);
+        res.json(rows);
+    } catch (error) {
+        console.error("❌ Erreur SQL :", error);
+        res.status(500).json({ error: error.message }); // 🔴 Renvoie l'erreur exacte
+    }
 });
 
-// ROUTES
+// 📌 Route pour effectuer une réservation
+app.post('/reserver', async (req, res) => {
+    const { name, phone, date, numPersonne, plageHoraireId, tableId } = req.body;
 
-// 1. Vérifier la disponibilité d'une table dans une plage horaire
-app.post('/check-availability', (req, res) => {
-    const { tableId, PlageHoraireId } = req.body;
+    try {
+        // Vérifier si la table est déjà réservée
+        const [exist] = await bddConnection.query(
+            "SELECT * FROM Reservation WHERE tableId = ? AND PlageHoraireId = ?",
+            [tableId, plageHoraireId]
+        );
 
-    const query = `SELECT * FROM Reservation WHERE tableId = ? AND PlageHoraireId = ?`;
-
-    db.query(query, [tableId, PlageHoraireId], (err, results) => {
-        if (err) {
-            console.error('Erreur lors de la vérification de la disponibilité :', err);
-            res.status(500).json({ error: 'Erreur serveur.' });
-        } else if (results.length > 0) {
-            res.json({ available: false, message: 'Cette table est déjà réservée pour cette plage horaire.' });
-        } else {
-            res.json({ available: true, message: 'La table est disponible.' });
+        if (exist.length > 0) {
+            return res.status(400).json({ error: 'Cette table est déjà réservée pour ce créneau.' });
         }
-    });
+
+        // Insérer la réservation
+        await bddConnection.query(`
+            INSERT INTO Reservation (name, phone, date, numPersonne, PlageHoraireId, tableId)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `, [name, phone, date, numPersonne, plageHoraireId, tableId]);
+
+        res.status(201).json({ message: 'Réservation réussie' });
+    } catch (error) {
+        console.error('Erreur lors de la réservation:', error);
+        res.status(500).json({ error: 'Erreur interne du serveur' });
+    }
 });
 
-// 2. Créer une réservation
-app.post('/reserve', (req, res) => {
-    const { name, phone, date, numPersonne, PlageHoraireId, tableId } = req.body;
-
-    // Vérifier la disponibilité avant d'insérer
-    const checkQuery = `SELECT * FROM Reservation WHERE tableId = ? AND PlageHoraireId = ?`;
-
-    bddConnection.query(checkQuery, [tableId, PlageHoraireId], (err, results) => {
-        if (err) {
-            console.error('Erreur lors de la vérification de la disponibilité :', err);
-            res.status(500).json({ error: 'Erreur serveur.' });
-        } else if (results.length > 0) {
-            res.status(400).json({ error: 'La table est déjà réservée pour cette plage horaire.' });
-        } else {
-            // Insérer la réservation
-            const insertQuery = `INSERT INTO Reservation (name, phone, date, numPersonne, PlageHoraireId, tableId) VALUES (?, ?, ?, ?, ?, ?)`;
-
-            bddConnection.query(
-                insertQuery,
-                [name, phone, date, numPersonne, PlageHoraireId, tableId],
-                (err) => {
-                    if (err) {
-                        console.error('Erreur lors de l\'insertion de la réservation :', err);
-                        res.status(500).json({ error: 'Erreur serveur.' });
-                    } else {
-                        res.status(201).json({ message: 'Réservation créée avec succès !' });
-                    }
-                }
-            );
-        }
-    });
-});
-
-// 3. Récupérer toutes les réservations
-app.get('/reservations', (req, res) => {
-    const query = 'SELECT * FROM Reservation';
-
-    bddConnection.query(query, (err, results) => {
-        if (err) {
-            console.error('Erreur lors de la récupération des réservations :', err);
-            res.status(500).json({ error: 'Erreur serveur.' });
-        } else {
-            res.json(results);
-        }
-    });
-});
-
-// 4. Supprimer une réservation
-app.delete('/reservation/:id', (req, res) => {
-    const { id } = req.params;
-
-    const query = 'DELETE FROM Reservation WHERE id = ?';
-
-    bddConnection.query(query, [id], (err, results) => {
-        if (err) {
-            console.error('Erreur lors de la suppression de la réservation :', err);
-            res.status(500).json({ error: 'Erreur serveur.' });
-        } else if (results.affectedRows === 0) {
-            res.status(404).json({ error: 'Réservation non trouvée.' });
-        } else {
-            res.json({ message: 'Réservation supprimée avec succès.' });
-        }
-    });
+app.listen(PORT, HOST, () => {
+    console.log(`Serveur en écoute sur http://${HOST}:${PORT}`);
 });
