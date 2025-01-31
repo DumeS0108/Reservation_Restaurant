@@ -3,38 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Gourmet</title>
     <link rel="stylesheet" href="index.css">
-    <title>Réservation Restaurant</title>
 </head>
+
 <body>
-    <h2>Réserver une table</h2>
-    
-    <form id="reservationForm">
-        <label for="name">Nom :</label>
-        <input type="text" id="name" required><br>
+    <header>
+        <div class="container">
+            <h1>Restaurant Gourmet</h1>
+            <nav>
+                <ul>
+                    <li><a href="#about">À propos</a></li>
+                    <li><a href="#menu">Menu</a></li>
+                    <li><a href="#reservation">Réserver</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
 
-        <label for="phone">Téléphone :</label>
-        <input type="text" id="phone" required><br>
+    <main>
+        <section id="about">
+            <div class="container">
+                <h2>Bienvenue au Restaurant Gourmet</h2>
+                <p>Découvrez une expérience culinaire unique dans un cadre chaleureux et raffiné.</p>
+            </div>
+        </section>
 
-        <label for="PlageHoraireId">Plage Horaire :</label>
-        <select id="PlageHoraireId" required onchange="loadTables()">
-            <option value="">Sélectionnez une plage horaire</option>
-            <option value="1">12:00 - 14:00</option>
-            <option value="2">19:00 - 21:00</option>
-        </select><br>
+        <section id="menu">
+            <div class="container">
+                <h2>Notre Menu</h2>
+                <p>Explorez notre sélection de plats délicieux préparés avec des ingrédients frais.</p>
+            </div>
+        </section>
 
-        <label for="tableId">Table :</label>
-        <select id="tableId" required onchange="loadTables()">
-            <option value="">Sélectionnez une table</option>
-        </select><br>
+        <section id="reservation">
+            <div class="container">
+                <h2>Réserver une table</h2>
+                <form id="reservationForm">
+                    <label for="name">Nom :</label>
+                    <input type="text" id="name" required>
 
-        <label for="numPersonne">Nombre de personnes :</label>
-        <input type="number" id="numPersonne" min="1" required><br>
+                    <label for="phone">Téléphone :</label>
+                    <input type="tel" id="phone" required>
 
-        <button type="submit">Réserver</button>
-    </form>
+                    <label for="date">Date :</label>
+                    <input type="date" id="date" required>
 
-    <div id="message" class="message"></div>
-<script src="page.js"></script>
+                    <label for="numPersonne">Nombre de personnes :</label>
+                    <input type="number" id="numPersonne" required>
+
+                    <label  for="plageHoraireId">Plage horaire :</label>
+                    <select id="plageHoraireId" required>
+                        <option id="dispo" name="Sélectionnez une plage horaire"></option>
+                    </select>
+
+                    <label for="tableId">Table :</label>
+                    <select id="tableId" required>
+                        <option value="">Sélectionnez une plage horaire d'abord</option>
+                    </select>
+
+                    <button type="submit">Réserver</button>
+                    <div id="message" class="message"></div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Restaurant Gourmet. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <script src="page.js"></script>
 </body>
 </html>
