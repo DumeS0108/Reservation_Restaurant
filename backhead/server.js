@@ -1,15 +1,15 @@
 const express = require('express');
-const mysql = require('mysql');
+const mysql = require('mysql2');  // Utilisation de mysql2 pour la compatibilité avec async/await
 const cors = require('cors');
 
 const app = express();
-const PORT = 3000;
-const HOST = '192.168.65.219';
+const PORT = 3030;
+const HOST = '192.168.65.219';  // Adresse IP locale
 
 app.use(cors());
 app.use(express.json());
 
-// Connexion MySQL
+// 📌 Connexion à la base de données
 const bddConnection = mysql.createPool({
     host: '192.168.65.219',
     user: 'site1',
@@ -18,12 +18,12 @@ const bddConnection = mysql.createPool({
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
-});
+}).promise();  // Utilisation de .promise() pour supporter async/await
 
 // 📌 Route pour récupérer les créneaux horaires
-app.get('/plages-horaires', async (req, res) => {
+app.get('/api/plagesHoraires', async (req, res) => {
     try {
-        const [rows] = await bddConnection.execute('SELECT * FROM PlagesHoraires');
+        const [rows] = await bddConnection.query('SELECT * FROM PlagesHoraires');
         res.json(rows);
     } catch (error) {
         console.error("❌ Erreur SQL :", error);
@@ -32,7 +32,7 @@ app.get('/plages-horaires', async (req, res) => {
 });
 
 // 📌 Route pour récupérer toutes les tables
-app.get('/tables', async (req, res) => {
+app.get('/api/tables', async (req, res) => {
     try {
         const [rows] = await bddConnection.execute('SELECT * FROM Tables');
         res.json(rows);
@@ -64,9 +64,10 @@ app.get('/tables-disponibles/:plageHoraireId', async (req, res) => {
 
 // 📌 Route pour effectuer une réservation
 app.post('/reserver', async (req, res) => {
-    const { name, phone, date, guests, plageHoraireId, tableId } = req.body;
+   
 
     try {
+        const { name, phone, date, guests, plageHoraireId, tableId } = req.body;
         // Vérifier si la table est déjà réservée
         const [exist] = await bddConnection.query(
             "SELECT * FROM Reservation WHERE tableId = ? AND plageHoraireId = ? AND date = ?",
@@ -90,6 +91,6 @@ app.post('/reserver', async (req, res) => {
     }
 });
 
-app.listen(PORT, HOST, () => {
-    console.log(`🚀 Serveur en écoute sur http://${HOST}:${PORT}`);
+app.listen(PORT, () => {
+    console.log(`🚀 Serveur à l'écoute sur http://${HOST}:${PORT}`);
 });
