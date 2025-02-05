@@ -1,10 +1,10 @@
-const express = require('express');
-const mysql = require('mysql2');  // Utilisation de mysql2 pour la compatibilité avec async/await
+const express = require('express'); 
+const mysql = require('mysql2');  
 const cors = require('cors');
 
 const app = express();
 const PORT = 3030;
-const HOST = '192.168.65.219';  // Adresse IP locale
+const HOST = '192.168.65.219';  
 
 app.use(cors());
 app.use(express.json());
@@ -18,7 +18,7 @@ const bddConnection = mysql.createPool({
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
-}).promise();  // Utilisation de .promise() pour supporter async/await
+}).promise();  
 
 // 📌 Route pour récupérer les créneaux horaires
 app.get('/api/plagesHoraires', async (req, res) => {
@@ -42,18 +42,19 @@ app.get('/api/tables', async (req, res) => {
     }
 });
 
-// 📌 Route pour récupérer les tables disponibles
-app.get('/tables-disponibles/:plageHoraireId', async (req, res) => {
-    const plageHoraireId = req.params.plageHoraireId;
+// 📌 Route pour récupérer les tables disponibles à une date et un créneau donné
+app.get('/tables-disponibles/:plageHoraireId/:date', async (req, res) => {
+    const { plageHoraireId, date } = req.params;
 
     try {
         const [rows] = await bddConnection.execute(`
             SELECT id, numero, capacite 
             FROM Tables 
             WHERE id NOT IN (
-                SELECT tableId FROM Reservation WHERE plageHoraireId = ?
+                SELECT tableId FROM Reservation 
+                WHERE plageHoraireId = ? AND date = ?
             )
-        `, [plageHoraireId]);
+        `, [plageHoraireId, date]);  // 📌 Ajout du critère de date
 
         res.json(rows);
     } catch (error) {
@@ -63,12 +64,11 @@ app.get('/tables-disponibles/:plageHoraireId', async (req, res) => {
 });
 
 // 📌 Route pour effectuer une réservation
-app.post('/reserver', async (req, res) => {
-   
-
+app.post('/api/reserver', async (req, res) => {
     try {
         const { name, phone, date, guests, plageHoraireId, tableId } = req.body;
-        // Vérifier si la table est déjà réservée
+
+        // Vérifier si la table est déjà réservée pour ce créneau
         const [exist] = await bddConnection.query(
             "SELECT * FROM Reservation WHERE tableId = ? AND plageHoraireId = ? AND date = ?",
             [tableId, plageHoraireId, date]
@@ -78,13 +78,13 @@ app.post('/reserver', async (req, res) => {
             return res.status(400).json({ error: "Cette table est déjà réservée pour ce créneau." });
         }
 
-        // Insérer la réservation
+        // Insérer la réservation en base de données
         await bddConnection.query(`
             INSERT INTO Reservation (name, phone, date, numPersonne, plageHoraireId, tableId)
             VALUES (?, ?, ?, ?, ?, ?)
         `, [name, phone, date, guests, plageHoraireId, tableId]);
 
-        res.status(201).json({ message: "Réservation réussie" });
+        res.status(201).json({ message: "✅ Réservation réussie !" });
     } catch (error) {
         console.error("❌ Erreur lors de la réservation :", error);
         res.status(500).json({ error: "Erreur interne du serveur" });
