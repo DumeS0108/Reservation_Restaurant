@@ -12,8 +12,8 @@ app.use(express.json());
 // 📌 Connexion à la base de données
 const bddConnection = mysql.createPool({
     host: '192.168.65.219',
-    user: 'site1',
-    password: 'Site1234!',
+    user: 'Resto',
+    password: 'RestoEloSac284!!',
     database: 'Restaurant',
     waitForConnections: true,
     connectionLimit: 10,
