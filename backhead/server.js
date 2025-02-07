@@ -41,6 +41,23 @@ app.get('/api/tables', async (req, res) => {
     }
 });
 
+// 📌 Route pour récupérer toutes les réservations
+app.get('/api/reservations', async (req, res) => {
+    try {
+        const [rows] = await bddConnection.query(`
+            SELECT R.id, R.name, R.phone, R.date, R.numPersonne, P.heure_debut, P.heure_fin, T.numero
+            FROM Reservation R
+            JOIN PlagesHoraires P ON R.plageHoraireId = P.id
+            JOIN Tables T ON R.tableId = T.id
+            ORDER BY R.date DESC
+        `);
+        res.json(rows);
+    } catch (error) {
+        console.error("❌ Erreur SQL :", error);
+        res.status(500).json({ error: "Erreur interne du serveur" });
+    }
+});
+
 // 📌 Route pour récupérer les tables disponibles à une date et un créneau donné
 app.get('/tables-disponibles/:plageHoraireId/:date', async (req, res) => {
     const { plageHoraireId, date } = req.params;
@@ -89,6 +106,7 @@ app.post('/api/reserver', async (req, res) => {
         res.status(500).json({ error: "Erreur interne du serveur" });
     }
 });
+
 
 app.listen(PORT, () => {
     console.log(`🚀 Serveur à l'écoute sur http://${HOST}:${PORT}`);

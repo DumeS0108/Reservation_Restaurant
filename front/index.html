@@ -22,45 +22,40 @@
     </header>
 
     <main>
-        <section id="about">
-            <div class="container">
-                <h2>Bienvenue au Restaurant Gourmet</h2>
-                <p>Découvrez une expérience culinaire unique dans un cadre chaleureux et raffiné.</p>
-            </div>
-        </section>
-
-        <section id="menu">
-            <div class="container">
-                <h2>Notre Menu</h2>
-                <p>Explorez notre sélection de plats délicieux préparés avec des ingrédients frais.</p>
-            </div>
-        </section>
-
         <section id="reservation">
             <div class="container">
                 <h2>Réserver une table</h2>
-                <form id="reservationForm">
-                    <label for="name">Nom :</label>
-                    <input type="text" id="name" required>
+                
+                <form id="reservationForm" autocomplete="off">
+                    <fieldset>
+                        <legend>Informations personnelles</legend>
+                        
+                        <label for="name">Nom :</label>
+                        <input type="text" id="name" placeholder="Entrez votre nom" required>
 
-                    <label for="phone">Téléphone :</label>
-                    <input type="tel" id="phone" required>
+                        <label for="phone">Téléphone :</label>
+                        <input type="tel" id="phone" placeholder="06XXXXXXXX" pattern="[0-9]{10}" required>
 
-                    <label for="numPersonne">Nombre de personnes :</label>
-                    <input type="number" id="numPersonne" required>
+                        <label for="numPersonne">Nombre de personnes :</label>
+                        <input type="number" id="numPersonne" placeholder="Nombre de convives" min="1" required>
+                    </fieldset>
 
-                    <label for="date">Date :</label>
-                    <input type="date" id="date" required>
+                    <fieldset>
+                        <legend>Détails de la réservation</legend>
 
-                    <label  for="plageHoraireId">Plage horaire :</label>
-                    <select id="plageHoraireId" required>
-                        <option id="dispo" name="Sélectionnez une plage horaire"></option>
-                    </select>
+                        <label for="date">Date :</label>
+                        <input type="date" id="date" required>
 
-                    <label for="tableId">Table :</label>
-                    <select id="tableId" required>
-                        <option value="">Sélectionnez une plage horaire d'abord</option>
-                    </select>
+                        <label for="plageHoraireId">Plage horaire :</label>
+                        <select id="plageHoraireId" required>
+                            <option value="">Sélectionnez une plage horaire</option>
+                        </select>
+
+                        <label for="tableId">Table :</label>
+                        <select id="tableId" required>
+                            <option value="">Sélectionnez une plage horaire d'abord</option>
+                        </select>
+                    </fieldset>
 
                     <button type="submit">Réserver</button>
                     <div id="message" class="message"></div>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📅 Liste des Réservations</title>
+    <link rel="stylesheet" href="voirReservation.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📅 Réservations du Restaurant</h1>
+            <a href="index.html" class="btn">⬅ Retour à l'accueil</a>
+        </header>
+
+        <main>
+            <section class="search-container">
+                <input type="text" id="search" placeholder="🔍 Rechercher une réservation...">
+                <button id="searchBtn">Rechercher</button>
+            </section>
+
+            <section class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>👤 Nom</th>
+                            <th>📞 Téléphone</th>
+                            <th>📅 Date</th>
+                            <th>🕒 Heure</th>
+                            <th>🍽 Table</th>
+                            <th>👥 Personnes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reservationsTable">
+                        <!-- Les réservations seront ajoutées ici dynamiquement -->
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+
+    <script src="pageReservation.js"></script>
+</body>
+</html>
