@@ -1,7 +1,6 @@
 const express = require('express'); 
 const mysql = require('mysql2');  
 const cors = require('cors');
-
 const app = express();
 const PORT = 3030;
 const HOST = '192.168.65.219';  
@@ -13,7 +12,7 @@ app.use(express.json());
 const bddConnection = mysql.createPool({
     host: '192.168.65.219',
     user: 'Resto',
-    password: 'RestoEloSac284!!',
+    password: 'RestoEloSac284!',
     database: 'Restaurant',
     waitForConnections: true,
     connectionLimit: 10,
