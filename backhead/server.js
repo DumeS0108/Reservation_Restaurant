@@ -13,11 +13,11 @@ const bddConnection = mysql.createPool({
     host: '192.168.65.219',
     user: 'Resto',
     password: 'RestoEloSac284!',
-    database: 'Restaurant',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-}).promise();  
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS
+}).promise();
 
 // 📌 Route pour récupérer les créneaux horaires
 app.get('/api/plagesHoraires', async (req, res) => {
