@@ -132,14 +132,14 @@ nav ul li a:hover {
     line-height: 1.8;
 }
 
-.about-content p {
-    margin-bottom: 15px;
-}
-
 .about-content h3 {
     color: #b22222;
     margin-top: 20px;
     font-size: 24px;
+}
+
+.about-content p {
+    margin-bottom: 15px;
 }
 
 .about-content ul {
