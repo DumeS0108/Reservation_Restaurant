@@ -9,13 +9,12 @@ body {
 
 /* 📌 Header */
 header {
-    background-color: rgba(139, 0, 0, 0.9); /* Correction RGBA */
+    background-color: rgba(139, 0, 0, 0.9);
     padding: 20px 0;
     position: fixed;
     width: 100%;
     top: 0;
     z-index: 1000;
-    transition: background 0.3s ease-in-out;
 }
 
 .container {
@@ -25,10 +24,9 @@ header {
     text-align: center;
 }
 
+/* 📌 Navigation */
 header h1 {
     color: #fff;
-    display: inline-block;
-    margin: 0;
     font-size: 24px;
 }
 
@@ -65,8 +63,6 @@ nav ul li a:hover {
     justify-content: center;
     align-items: center;
     text-align: center;
-    position: relative;
-    padding-top: 80px; /* Pour éviter que le header fixe cache du contenu */
 }
 
 .hero-text {
@@ -131,16 +127,9 @@ nav ul li a:hover {
     margin-bottom: 15px;
 }
 
-.about-content h3 {
-    color: #b22222;
-    margin-top: 20px;
-    font-size: 24px;
-}
-
 .about-content ul {
     list-style: none;
     padding: 0;
-    margin-top: 10px;
 }
 
 .about-content ul li {
@@ -164,20 +153,10 @@ nav ul li a:hover {
     color: green;
 }
 
-/* 📌 Section Contact */
-.contact {
-    background: #f8f1e7;
-    padding: 50px 20px;
-    text-align: center;
-}
-
 /* 📌 Footer */
 footer {
     background: #8B0000;
     color: #fff;
     text-align: center;
     padding: 20px 0;
-    margin-top: 50px;
 }
-
-
