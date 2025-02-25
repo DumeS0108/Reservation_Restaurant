@@ -81,7 +81,7 @@ nav ul li a {
     display: inline-block;
     padding: 10px 20px;
     background: #FFD700;
-    color: #333;
+    color: #8B0000;
     font-weight: bold;
     text-decoration: none;
     margin-top: 10px;
@@ -96,7 +96,7 @@ nav ul li a {
 
 /* 📌 Footer */
 footer {
-    background: #333;
+    background: #8B0000;
     color: #fff;
     text-align: center;
     padding: 20px 0;
