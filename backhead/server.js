@@ -1,24 +1,26 @@
-const express = require('express'); 
-const mysql = require('mysql2');  
+require('dotenv').config(); // Chargement des variables d'environnement
+
+const express = require('express');
+const mysql = require('mysql2');
 const cors = require('cors');
+
 const app = express();
-const PORT = 3030;
-const HOST = '192.168.65.219';  
+const PORT = process.env.PORT || 3030;
+const HOST = process.env.HOST || '192.168.65.219';
 
 app.use(cors());
 app.use(express.json());
 
-// 📌 Connexion à la base de données
+// 📌 Connexion à la base de données avec des variables d'environnement
 const bddConnection = mysql.createPool({
-    host: '192.168.65.219',
-    user: 'Resto',
-    password: 'RestoEloSac284!',
-    database: 'Restaurant',
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
-}).promise();  
-
+}).promise();
 
 // 📌 Route pour récupérer les créneaux horaires
 app.get('/api/plagesHoraires', async (req, res) => {
