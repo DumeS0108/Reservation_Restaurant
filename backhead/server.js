@@ -1,17 +1,17 @@
-require('dotenv').config(); // Chargement des variables d'environnement
+require('dotenv').config(); // Chargement des variables
 
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
 
 const app = express();
-const PORT = process.env.PORT || 3030;
+const PORT = process.env.PORT || 2846;
 const HOST = process.env.HOST || '192.168.65.219';
 
 app.use(cors());
 app.use(express.json());
 
-// 📌 Connexion à la base de données avec des variables d'environnement
+// 📌 Connexion à la base de données 
 const bddConnection = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -106,6 +106,37 @@ app.post('/api/reserver', async (req, res) => {
         res.status(201).json({ message: "✅ Réservation réussie !" });
     } catch (error) {
         console.error("❌ Erreur lors de la réservation :", error);
+        res.status(500).json({ error: "Erreur interne du serveur" });
+    }
+});
+
+// 📌 Route pour supprimer une réservation
+app.delete('/api/reservations/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        await bddConnection.query("DELETE FROM Reservation WHERE id = ?", [id]);
+        res.json({ message: "✅ Réservation supprimée avec succès !" });
+    } catch (error) {
+        console.error("❌ Erreur lors de la suppression :", error);
+        res.status(500).json({ error: "Erreur interne du serveur" });
+    }
+});
+
+// 📌 Route pour mettre à jour une réservation
+app.put('/api/reservations/:id', async (req, res) => {
+    const { id } = req.params;
+    const { name, phone, date, numPersonne, plageHoraireId, tableId } = req.body;
+    
+    try {
+        await bddConnection.query(
+            `UPDATE Reservation 
+             SET name = ?, phone = ?, date = ?, numPersonne = ?, plageHoraireId = ?, tableId = ?
+             WHERE id = ?`,
+            [name, phone, date, numPersonne, plageHoraireId, tableId, id]
+        );
+        res.json({ message: "✅ Réservation mise à jour avec succès !" });
+    } catch (error) {
+        console.error("❌ Erreur lors de la mise à jour :", error);
         res.status(500).json({ error: "Erreur interne du serveur" });
     }
 });
