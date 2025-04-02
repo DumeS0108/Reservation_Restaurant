@@ -4,46 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>📅 Liste des Réservations</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="../page-css/voirReservation.css">
+    <link rel="stylesheet" href="..//page-css/voirReservation.css">
 </head>
 <body>
     <div class="container">
         <header>
             <h1>📅 Réservations du Restaurant</h1>
-            <a href="../page-html/reserver.html" class="btn">⬅ Retour à l'accueil</a>
+            <a href="..//page-html/reserver.html" class="btn">⬅ Retour à l'accueil</a>
         </header>
 
         <main>
-            <!-- Barre de recherche -->
             <section class="search-container">
                 <input type="text" id="search" placeholder="🔍 Rechercher une réservation...">
                 <button id="searchBtn">Rechercher</button>
             </section>
 
-            <!-- Tableau des réservations -->
             <section class="table-container">
                 <table>
                     <thead>
                         <tr>
-                            <th>👤 Nom</th>
+                            <th>👤 No</th>
                             <th>📞 Téléphone</th>
                             <th>📅 Date</th>
                             <th>🕒 Heure</th>
                             <th>🍽 Table</th>
                             <th>👥 Personnes</th>
-                            <th>⚙️ Actions</th>
                         </tr>
                     </thead>
                     <tbody id="reservationsTable">
-                        <!-- Les réservations seront chargées ici dynamiquement -->
+                        <!-- Les réservations seront ajoutées ici dynamiquement -->
                     </tbody>
                 </table>
             </section>
         </main>
     </div>
 
-    <!-- Lien vers le fichier JavaScript -->
-    <script src="../page-js/voirReservation.js"></script>
+    <script src="..//page-js/voirReservation.js"></script>
 </body>
-</html>

@@ -24,12 +24,9 @@ async function chargerReservations() {
                 <td class="horaire">${reservation.heure_debut} - ${reservation.heure_fin}</td>
                 <td class="tableId">Table ${reservation.numero}</td>
                 <td class="numPersonne">${reservation.numPersonne}</td>
-                <td>
+                <td class="actions">
                     <button class="btn btn-edit" onclick="activerEdition(${reservation.id})">
                         <i class="fas fa-edit"></i> Modifier
-                    </button>
-                    <button class="btn btn-save d-none" onclick="enregistrerReservation(${reservation.id})">
-                        <i class="fas fa-save"></i> Enregistrer
                     </button>
                     <button class="btn btn-delete" onclick="supprimerReservation(${reservation.id})">
                         <i class="fas fa-trash-alt"></i> Supprimer
@@ -47,14 +44,15 @@ async function chargerReservations() {
 async function activerEdition(id) {
     const row = document.querySelector(`tr[data-id="${id}"]`);
 
-    // Récupérer les valeurs actuelles
+    // Sauvegarde du contenu original
+    row.dataset.originalContent = row.innerHTML;
+
     const name = row.querySelector(".name").textContent;
     const phone = row.querySelector(".phone").textContent;
     const date = row.querySelector(".date").textContent;
     const numPersonne = row.querySelector(".numPersonne").textContent;
     const tableId = row.querySelector(".tableId").textContent.replace("Table ", "");
 
-    // Convertir la date JJ/MM/YYYY → YYYY-MM-DD pour le input date
     const formattedDate = formatterDateEnvoi(date);
 
     row.querySelector(".name").innerHTML = `<input type="text" id="name-${id}" value="${name}" />`;
@@ -62,17 +60,28 @@ async function activerEdition(id) {
     row.querySelector(".date").innerHTML = `<input type="date" id="date-${id}" value="${formattedDate}" />`;
     row.querySelector(".numPersonne").innerHTML = `<input type="number" id="numPersonne-${id}" value="${numPersonne}" />`;
 
-    // Ajouter les sélecteurs dynamiques pour **Table** et **Plage Horaire**
     row.querySelector(".tableId").innerHTML = `<select id="tableSelect-${id}" class="tableSelect"></select>`;
     row.querySelector(".horaire").innerHTML = `<select id="plageHoraireSelect-${id}" class="plageHoraireSelect"></select>`;
 
-    // Charger les **Tables** et **Plages Horaires**
     await chargerTables(id, tableId);
     await chargerPlagesHoraires(id);
 
-    // Afficher "Enregistrer" et cacher "Modifier"
-    row.querySelector(".btn-edit").classList.add("d-none");
-    row.querySelector(".btn-save").classList.remove("d-none");
+    // Ajout dynamique des boutons "Sauvegarder" et "Annuler"
+    const actionsCell = row.querySelector(".actions");
+    actionsCell.innerHTML = `
+        <button class="btn btn-save" onclick="enregistrerReservation(${id})">
+            ✅ Sauvegarder
+        </button>
+        <button class="btn btn-cancel" onclick="annulerEdition(${id})">
+            ❌ Annuler
+        </button>
+    `;
+}
+
+// 📌 Annuler l'édition
+function annulerEdition(id) {
+    const row = document.querySelector(`tr[data-id="${id}"]`);
+    row.innerHTML = row.dataset.originalContent; // Restaurer l'affichage original
 }
 
 // 📌 Charger les tables
@@ -143,23 +152,6 @@ async function enregistrerReservation(id) {
         chargerReservations();
     } catch (error) {
         console.error("❌ Erreur lors de la mise à jour :", error);
-    }
-}
-
-// 📌 Supprimer une réservation
-async function supprimerReservation(id) {
-    if (!confirm("Êtes-vous sûr de vouloir supprimer cette réservation ?")) return;
-
-    try {
-        const response = await fetch(`http://192.168.65.219:3030/api/reservations/${id}`, {
-            method: "DELETE"
-        });
-        if (!response.ok) throw new Error("Erreur lors de la suppression de la réservation.");
-
-        alert("✅ Réservation supprimée avec succès !");
-        chargerReservations();
-    } catch (error) {
-        console.error("❌ Erreur lors de la suppression :", error);
     }
 }
 
