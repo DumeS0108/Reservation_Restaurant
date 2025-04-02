@@ -75,6 +75,8 @@ async function modifierReservation(id, name, phone, date, numPersonne, plageHora
 
     // Reformater la date pour qu'elle soit au format 'YYYY-MM-DD'
     const formattedDate = new Date(nouvelleDate).toISOString().split('T')[0];  // 'YYYY-MM-DD'
+    console.log("format de la date  :", formattedDate);
+
 
     // Récupérer la plage horaire sélectionnée dans le select
     const plageHoraireSelect = document.getElementById("plageHoraireSelect");
