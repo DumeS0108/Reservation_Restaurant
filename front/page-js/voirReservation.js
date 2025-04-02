@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     chargerReservations();
+    chargerPlagesHoraires(); // Charger les plages horaires dès le début
     document.getElementById("search").addEventListener("input", filtrerReservations);
 });
 
@@ -17,12 +18,12 @@ async function chargerReservations() {
             row.innerHTML = `
                 <td>${reservation.name}</td>
                 <td>${reservation.phone}</td>
-                <td>${reservation.date}</td>
+                <td>${formatterDate(reservation.date)}</td>
                 <td>${reservation.heure_debut} - ${reservation.heure_fin}</td>
                 <td>Table ${reservation.numero}</td>
                 <td>${reservation.numPersonne}</td>
                 <td>
-                    <button class="btn btn-edit" onclick="modifierReservation(${reservation.id}, '${reservation.name}', '${reservation.phone}', '${reservation.date}', ${reservation.numPersonne})">
+                    <button class="btn btn-edit" onclick="modifierReservation(${reservation.id}, '${reservation.name}', '${reservation.phone}', '${reservation.date}', ${reservation.numPersonne}, ${reservation.plageHoraireId})">
                         <i class="fas fa-edit"></i> Modifier
                     </button>
                     <button class="btn btn-delete" onclick="supprimerReservation(${reservation.id})">
@@ -34,6 +35,25 @@ async function chargerReservations() {
         });
     } catch (error) {
         console.error("❌ Erreur lors du chargement des réservations :", error);
+    }
+}
+
+async function chargerPlagesHoraires() {
+    try {
+        const response = await fetch("http://192.168.65.219:3030/api/plagesHoraires");
+        if (!response.ok) throw new Error("Erreur lors du chargement des plages horaires.");
+
+        const plagesHoraires = await response.json();
+        const select = document.getElementById("plageHoraireSelect");
+
+        if (!select) return; // Si le select n'existe pas, on arrête
+
+        select.innerHTML = '<option value="">Sélectionnez une plage horaire</option>';
+        plagesHoraires.forEach(plage => {
+            select.innerHTML += `<option value="${plage.id}">${plage.heure_debut} - ${plage.heure_fin}</option>`;
+        });
+    } catch (error) {
+        console.error("❌ Erreur lors du chargement des plages horaires :", error);
     }
 }
 
@@ -65,50 +85,68 @@ async function supprimerReservation(id) {
 async function modifierReservation(id, name, phone, date, numPersonne, plageHoraireId) {
     const nouveauNom = prompt("Nom :", name);
     const nouveauTel = prompt("Téléphone :", phone);
-    const nouvelleDate = prompt("Date (YYYY-MM-DD) :", date);
+    const nouvellePlageHoraire = prompt("Plage horaire :", plageHoraireId);
+    const nouvelleDate = prompt("Date (JJ-MM-YYYY) :", formatterDate(date));
     const nouveauNbPersonnes = prompt("Nombre de personnes :", numPersonne);
 
-    if (!nouveauNom || !nouveauTel || !nouvelleDate || !nouveauNbPersonnes) {
-        alert("🚨 Tous les champs sont requis.");
+    if (!nouveauNom || !nouveauTel || !nouvellePlageHoraire || !nouvelleDate || !nouveauNbPersonnes) {
+        alert("🚨 Tous les champs sont obligatoires !");
         return;
+        console.log("🚨 Tous les champs sont obligatoires !");
     }
 
-    // Reformater la date pour qu'elle soit au format 'YYYY-MM-DD'
-    const formattedDate = new Date(nouvelleDate).toISOString().split('T')[0];  // 'YYYY-MM-DD'
-    console.log("format de la date  :", formattedDate);
+    // 🔄 Reformater la date pour l'envoi au back (YYYY-MM-DD)
+    const formattedDate = formatterDateEnvoi(nouvelleDate);
 
-
-    // Récupérer la plage horaire sélectionnée dans le select
-    const plageHoraireSelect = document.getElementById("plageHoraireSelect");
-    const selectedPlageHoraireId = plageHoraireSelect.value;
-
-    if (!selectedPlageHoraireId) {
-        alert("🚨 Vous devez sélectionner une plage horaire.");
-        return;
-    }
-
+    // 📌 Charger les plages horaires et demander à l'utilisateur de choisir
     try {
-        const response = await fetch(`http://192.168.65.219:3030/api/reservations/${id}`, {
+        const response = await fetch("http://192.168.65.219:3030/api/plagesHoraires");
+        if (!response.ok) throw new Error("Erreur lors du chargement des plages horaires.");
+
+        const plagesHoraires = await response.json();
+        let options = plagesHoraires.map(plage => `${plage.id}: ${plage.heure_debut} - ${plage.heure_fin}`).join("\n");
+
+        // ❓ Demande à l'utilisateur de choisir une plage horaire
+        let selectedPlageHoraire = prompt(`Sélectionnez une plage horaire :\n${options}`, plageHoraireId);
+
+        if (!selectedPlageHoraire || isNaN(selectedPlageHoraire)) {
+            alert("🚨 Vous devez entrer un ID de plage horaire valide.");
+            return;
+        }
+
+        // 🔄 Envoi des nouvelles informations au back-end
+        const updateResponse = await fetch(`http://192.168.65.219:3030/api/reservations/${id}`, {
             method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 name: nouveauNom,
                 phone: nouveauTel,
-                date: formattedDate,  // Utiliser la date formatée
+                date: formattedDate,
                 numPersonne: nouveauNbPersonnes,
-                plageHoraireId: selectedPlageHoraireId,  // Passer l'ID de la plage horaire sélectionnée
-                tableId: 1  // Assurez-vous de passer la table correcte ou demandez à l'utilisateur de la sélectionner
+                plageHoraireId: selectedPlageHoraire, // 🔥 Utilisation de l'ID sélectionné
+                tableId: 1 // ❗ Adapter en fonction du projet
             })
         });
 
-        if (!response.ok) throw new Error("Erreur lors de la mise à jour de la réservation.");
+        if (!updateResponse.ok) throw new Error("Erreur lors de la mise à jour de la réservation.");
 
         alert("✅ Réservation mise à jour avec succès !");
-        chargerReservations(); // Recharge la liste des réservations après la mise à jour
+        chargerReservations();
     } catch (error) {
-        console.error("❌ Erreur lors de la mise à jour :", error);
+        console.error("❌ Erreur :", error);
     }
 }
 
+
+// 🔄 Fonction pour formater la date affichée en JJ-MM-YYYY
+function formatterDate(dateString) {
+    const dateObj = new Date(dateString);
+    if (isNaN(dateObj)) return dateString; // Si la date est invalide, on la laisse telle quelle
+    return dateObj.toLocaleDateString("fr-FR"); // Format français JJ/MM/AAAA
+}
+
+// 🔄 Fonction pour formater la date avant envoi au back (YYYY-MM-DD)
+function formatterDateEnvoi(dateString) {
+    const [jour, mois, annee] = dateString.split("-");
+    return `${annee}-${mois}-${jour}`;
+}
