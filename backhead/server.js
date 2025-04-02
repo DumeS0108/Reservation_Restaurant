@@ -73,7 +73,7 @@ app.get('/tables-disponibles/:plageHoraireId/:date', async (req, res) => {
                 SELECT tableId FROM Reservation 
                 WHERE plageHoraireId = ? AND date = ?
             )
-        `, [plageHoraireId, date]);  // 📌 Ajout du critère de date
+        `, [plageHoraireId, date]);  
 
         res.json(rows);
     } catch (error) {
@@ -87,10 +87,13 @@ app.post('/api/reserver', async (req, res) => {
     try {
         const { name, phone, date, guests, plageHoraireId, tableId } = req.body;
 
+        // 🟢 Formatage de la date
+        const formattedDate = date.split('T')[0]; 
+
         // Vérifier si la table est déjà réservée pour ce créneau
         const [exist] = await bddConnection.query(
             "SELECT * FROM Reservation WHERE tableId = ? AND plageHoraireId = ? AND date = ?",
-            [tableId, plageHoraireId, date]
+            [tableId, plageHoraireId, formattedDate]
         );
 
         if (exist.length > 0) {
@@ -101,7 +104,7 @@ app.post('/api/reserver', async (req, res) => {
         await bddConnection.query(`
             INSERT INTO Reservation (name, phone, date, numPersonne, plageHoraireId, tableId)
             VALUES (?, ?, ?, ?, ?, ?)
-        `, [name, phone, date, guests, plageHoraireId, tableId]);
+        `, [name, phone, formattedDate, guests, plageHoraireId, tableId]);
 
         res.status(201).json({ message: "✅ Réservation réussie !" });
     } catch (error) {
@@ -126,13 +129,16 @@ app.delete('/api/reservations/:id', async (req, res) => {
 app.put('/api/reservations/:id', async (req, res) => {
     const { id } = req.params;
     const { name, phone, date, numPersonne, plageHoraireId, tableId } = req.body;
-    
+
     try {
+        // 🟢 Formatage de la date avant mise à jour
+        const formattedDate = date.split('T')[0];
+
         await bddConnection.query(
             `UPDATE Reservation 
              SET name = ?, phone = ?, date = ?, numPersonne = ?, plageHoraireId = ?, tableId = ?
              WHERE id = ?`,
-            [name, phone, date, numPersonne, plageHoraireId, tableId, id]
+            [name, phone, formattedDate, numPersonne, plageHoraireId, tableId, id]
         );
         res.json({ message: "✅ Réservation mise à jour avec succès !" });
     } catch (error) {
@@ -140,7 +146,6 @@ app.put('/api/reservations/:id', async (req, res) => {
         res.status(500).json({ error: "Erreur interne du serveur" });
     }
 });
-
 
 app.listen(PORT, () => {
     console.log(`🚀 Serveur à l'écoute sur http://${HOST}:${PORT}`);
