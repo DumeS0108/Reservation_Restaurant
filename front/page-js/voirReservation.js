@@ -155,6 +155,42 @@ async function enregistrerReservation(id) {
     }
 }
 
+// 📌 Supprimer une réservation
+async function supprimerReservation(id) {
+    if (!confirm("⚠️ Êtes-vous sûr de vouloir supprimer cette réservation ?")) return;
+
+    const row = document.querySelector(`tr[data-id="${id}"]`);
+    row.style.transition = "opacity 0.5s";
+    row.style.opacity = 0;
+
+    setTimeout(async () => {
+        try {
+            const response = await fetch(`http://192.168.65.219:3030/api/reservations/${id}`, {
+                method: "DELETE"
+            });
+
+            if (!response.ok) throw new Error("Erreur lors de la suppression.");
+            row.remove();
+            alert("✅ Réservation supprimée avec succès !");
+        } catch (error) {
+            console.error("❌ Suppression échouée :", error);
+            alert("🚨 La suppression a échoué.");
+        }
+    }, 500);
+}
+
+// 📌 Filtrer les réservations (par nom ou téléphone)
+function filtrerReservations() {
+    const query = document.getElementById("search").value.toLowerCase();
+    const rows = document.querySelectorAll("#reservationsTable tr");
+
+    rows.forEach(row => {
+        const name = row.querySelector(".name").textContent.toLowerCase();
+        const phone = row.querySelector(".phone").textContent.toLowerCase();
+        row.style.display = (name.includes(query) || phone.includes(query)) ? "table-row" : "none";
+    });
+}
+
 // 📌 Formatter les dates affichées en JJ/MM/YYYY
 function formatterDate(dateString) {
     const dateObj = new Date(dateString);
