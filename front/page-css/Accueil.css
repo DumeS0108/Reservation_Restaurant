@@ -64,15 +64,16 @@ nav ul li a:hover {
 
 /* 📌 Section Hero */
 .hero {
-    background: url('https://media.istockphoto.com/id/939051976/fr/photo/vue-de-l%C3%A9l%C3%A9gant-caf%C3%A9-vide-avec-am%C3%A9nag%C3%A9-de-tables-et-chaises-pour-les-visiteurs.jpg?s=612x612&w=0&k=20&c=VFBJFxBhAZprztQMx_P23IziP9qL7FTikgK1nrCaVHw=') center/cover no-repeat;
+    background: url('img/img.png') center/cover no-repeat;
     height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
     position: relative;
-    padding-top: 80px; /* Pour éviter que le header fixe cache du contenu */
+    padding-top: 80px;
 }
+
 
 .hero-text {
     background: rgba(139, 0, 0, 0.7);
